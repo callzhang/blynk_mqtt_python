@@ -253,3 +253,9 @@ Contributions are welcome! Please feel free to submit pull requests, report issu
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## License
+This project is licensed under the MIT License. See the LICENSE.md file for details. You can find a copy of the MIT License text at https://opensource.org/licenses/MIT.
+
+## Acknowledgements
+This SDK was developed by referencing the capabilities of the Blynk MQTT API and drew structural inspiration from the original [blynk-library-python](https://github.com/vshymanskyy/blynk-library-python) SDK by Volodymyr Shymanskyy.
