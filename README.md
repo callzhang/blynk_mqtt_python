@@ -10,6 +10,7 @@ This SDK provides a Pythonic interface to the [Blynk MQTT API](https://docs.blyn
 
 * **Easy Connection:** Simplified connection to the Blynk MQTT broker.
 * **Authentication:** Handles authentication using your Blynk device token.
+* **Async SDK Option:** `lib/blynk_mqtt_sdk_async.py` provides a `uasyncio` client for non-blocking applications and uses the current Blynk MQTT API topics (`downlink/#`, `ds/<name>`, `batch_ds`, `get/ds`, `info/mcu`).
 * **Virtual Pin Communication:**
     * `virtual_write()`: Send data from your device to virtual pins.
     * `@blynk.on("V<pin>")`: Decorator to handle commands/data sent from Blynk to virtual pins.
@@ -43,11 +44,51 @@ This SDK provides a Pythonic interface to the [Blynk MQTT API](https://docs.blyn
 ## Installation
 
 1.  **Download the SDK:**
-    Obtain the `blynk_mqtt_sdk.py` file from this repository.
+    Obtain `blynk_mqtt_sdk.py` for the synchronous SDK, or `blynk_mqtt_sdk_async.py` for the `uasyncio` SDK.
 2.  **Upload to Device:**
-    Upload `blynk_mqtt_sdk.py` to the root directory of your MicroPython device's filesystem, or to a `lib` folder (ensure `lib` is in `sys.path`).
+    Upload the SDK file to the root directory of your MicroPython device's filesystem, or to a `lib` folder (ensure `lib` is in `sys.path`).
 3.  **Install `umqtt.simple` (if needed):**
     If `umqtt.simple.py` is not already on your device or built into your firmware, download it from `micropython-lib` and upload it to the same location as the SDK (or your `lib` folder).
+
+### Async Quick Start
+
+Use the async SDK when your firmware already runs a `uasyncio` event loop or when you want Blynk MQTT handling to run in the background.
+
+```python
+import uasyncio as asyncio
+from blynk_mqtt_sdk_async import BlynkMQTT
+
+BLYNK_AUTH_TOKEN = "YOUR_BLYNK_AUTH_TOKEN"
+BLYNK_TEMPLATE_ID = "YOUR_TEMPLATE_ID"
+
+async def main():
+    blynk = BlynkMQTT(
+        auth_token=BLYNK_AUTH_TOKEN,
+        template_id=BLYNK_TEMPLATE_ID,
+        ssl=False,
+        log_func=print,
+    )
+
+    @blynk.on("connect")
+    async def on_connect():
+        blynk.batch_set_values({"Temperature": 25.0, "Status": "online"})
+        blynk.get_all_values()
+
+    @blynk.on("message")
+    def on_message(topic, msg):
+        print(topic, msg)
+
+    await blynk.start()
+
+    while True:
+        if blynk.connected:
+            blynk.set_value("Temperature", 25.0)
+        await asyncio.sleep(10)
+
+asyncio.run(main())
+```
+
+See `examples/async_demo.py` for a fuller example.
 
 ### Quick Start
 
